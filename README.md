@@ -1,100 +1,92 @@
-# 🚗 CabShare - Campus Ride Sharing Platform
+# 🚗 CampusRide - Smart Commute Platform
 
-## 📌 Overview
-
-CabShare is a campus-based ride sharing platform that allows students to post, discover, and join rides in real-time. It helps reduce travel costs and improves coordination among students.
-
----
-
-## 🎯 Problem Statement
-
-Students often travel individually and pay high cab fares (~₹900). There is no structured way to find others traveling at the same time, leading to wasted money and poor coordination.
+## 📌 Project Overview
+CampusRide is a high-fidelity, full-stack ride-sharing platform designed specifically for university students. It solves the coordination problem and high cost of individual travel by allowing students to discover, join, and manage shared commutes in real-time.
 
 ---
 
-## 💡 Solution
+## 🏗️ Architecture & Lead Developer Credits
+**Vani Rudra (Lead Architect)**: Auth Service, Ride Logic, SOLID Implementation, Repo & API Architecture.
 
-CabShare provides a platform where students can:
-
-* Create rides
-* Join rides
-* Split fares automatically
-* Chat in real-time
-* Receive notifications
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend:** React, Vite, Tailwind CSS
-* **Backend:** Node.js, Express
-* **Database:** MongoDB (Mongoose ODM)
-* **Real-time:** Socket.io (WebSockets)
-* **Authentication:** JWT, bcrypt, Email OTP
-* **Deployment:** Vercel, Railway
+### **Core Design Patterns (SOLID)**
+- **Singleton Pattern**: Managed via `SocketManager` and `RideService` for consistent state.
+- **Factory Pattern**: The `NotificationFactory` handles dynamic creation of real-time alerts.
+- **Strategy Pattern**: Flexible ride discovery using the `RideFilter` logic.
+- **Decorator Pattern**: Implemented via the `catchAsync` wrapper for clean error handling.
 
 ---
 
-## ⚙️ Features
-
-* Ride creation and management
-* Join / leave ride
-* Real-time fare splitting
-* Live group chat (Socket.io)
-* Notifications system
-* Campus-only authentication via email OTP
-* Real-time updates using WebSockets
+## ⚡ Tech Stack
+- **Backend**: Node.js, Express, TypeScript (Strict Mode)
+- **Database**: MongoDB + Mongoose ODM
+- **Validation**: Zod (Schema-based request guarding)
+- **Security**: JWT (Stateless Auth), bcrypt (Password hashing)
+- **Real-time**: Socket.io (Bi-directional communication)
 
 ---
 
-## 🧠 OOP Concepts Used
+## 🛠️ Global API Reference
 
-* **Encapsulation** → Ride, User classes
-* **Inheritance** → Notification hierarchy
-* **Polymorphism** → Notification handling
-* **Abstraction** → Services (Auth, Socket, Fare)
+### **Authentication Module**
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Sends 6-digit OTP to university email. |
+| `POST` | `/api/auth/verify-otp` | Validates OTP and registers the user. |
+| `POST` | `/api/auth/login` | Authenticates User & Returns JWT. |
+| `GET` | `/api/auth/me` | Fetches current user profile. |
 
----
-
-## 🧩 Design Patterns
-
-* **Observer Pattern** → Notifications & ride updates
-* **Strategy Pattern** → Ride filtering logic
-* **Factory Pattern** → Notification creation
-* **Singleton Pattern** → Database & Socket instances
-* **Template Method Pattern** → Workflow handling (validate → process → notify)
-
----
-
-## 📐 SOLID Principles
-
-* **Single Responsibility** → Separate services (Auth, Ride, Notification)
-* **Open/Closed** → Extend features without modifying existing code
-* **Liskov Substitution** → Notification subclasses interchangeable
-* **Interface Segregation** → Small, focused interfaces
-* **Dependency Inversion** → Services depend on abstractions
+### **Ride Service Module**
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/rides` | Creates a new ride (Auto-creates Driver membership). |
+| `GET` | `/api/rides` | Discover rides with `destination` & `date` filters. |
+| `GET` | `/api/rides/:id` | Detailed view of a ride, members, and chat. |
+| `POST` | `/api/rides/:id/join` | Passenger request to join a ride. |
+| `PUT` | `/api/rides/:id/members` | **Host Only**: Accept or Reject a member. |
+| `PUT` | `/api/rides/:id/confirm` | **Host Only**: Finalize ride and block further joins. |
 
 ---
 
-## 🏗️ System Architecture
-
-CabShare follows a **layered client-server architecture with real-time WebSocket communication**:
-
-* Frontend (React) interacts via REST APIs
-* Backend (Node.js + Express) handles business logic
-* Socket.io manages real-time events (chat, ride updates)
-* MongoDB stores flexible, document-based data (users, rides, messages, notifications)
-* Mongoose ODM is used for schema modeling and database interaction
-
----
-
-## 🔄 SDLC (Software Development Life Cycle)
-
-1. Requirement Analysis – Identified campus ride-sharing problem
-2. System Design – Designed architecture, database, APIs
-3. Implementation – Developed frontend and backend modules
-4. Testing – Created test cases and validated features
-5. Deployment – Hosted using Vercel and Railway
+## 🛡️ Professional Error Architecture
+The platform implements a **Centralized Error Handling Architecture** to ensure the API never crashes and provides consistent feedback:
+- **`AppError` Class**: Distinguishes between Operational (User) errors and System bugs.
+- **`globalErrorHandler`**: A single middleware safety net that catches all unhandled exceptions.
+- **Error Format**:
+```json
+{
+  "status": "fail",
+  "message": "Invalid credentials",
+}
+```
 
 ---
 
+## 🚀 Setup & Deployment
+
+### Backend Setup
+1. `cd backend`
+2. `npm install`
+3. Create `.env` (See Environment Variables below)
+4. `npm run dev`
+
+### Frontend Setup
+1. `npm install`
+2. `npm run dev`
+
+### Environment Variables
+```bash
+MONGO_URI=mongodb://localhost:27017/campusride
+JWT_SECRET=your_secure_secret
+PORT=5001
+EMAIL_USER=your_university_email
+EMAIL_PASS=your_app_password
+```
+
+---
+
+## 👥 Team Members & Modules
+1. **Vani Rudra (TL)** – Team Lead + Backend Architecture (Auth, Ride Service, SOLID)
+2. **Bulbul Agarwalla** – Frontend Development (React Pages, AuthContext)
+3. **Anuradha Raghuwanshi** – Real-Time & Chat (Socket.io, ChatBox)
+4. **Apoorva Choudhary** – Database & API Design (Schema, REST Endpoints)
+5. **Ganga Raghuwanshi** – Testing & Documentation (Test Cases, Flow Diagrams)

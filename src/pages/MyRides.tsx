@@ -1,138 +1,103 @@
-import { useState } from 'react';
-import { Clock, CheckCircle } from 'lucide-react';
-import RideCard from '../components/ride/RideCard';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { Clock, Car, Users, Search, Plus } from 'lucide-react';
+import { getMyRides } from '../api/rides';
 import { useAuth } from '../context/AuthContext';
-// import { getMe } from '../api/auth';
+import RideCard from '../components/ride/RideCard';
+import SkeletonCard from '../components/ui/SkeletonCard';
+import { Ride } from '../types';
 
 const MyRides = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('ACTIVE');
-  
-  const mockUser = (id: string, name: string) => ({
-    id,
-    name,
-    email: `${name.toLowerCase().replace(' ', '.')}@university.edu`,
-    isVerified: true,
-    createdAt: new Date().toISOString()
-  });
+  const navigate = useNavigate();
+  const [rides, setRides] = useState<Ride[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Using mocks for UI presentation if backend missing real structure
-  const activeRides = [
-    {
-      id: "mock1",
-      creatorId: "u2",
-      creator: mockUser("u2", "Rahul S."),
-      destination: "Main Campus Library",
-      pickupLocation: "North Gate",
-      date: new Date().toISOString().split('T')[0],
-      departureTime: new Date().toISOString(),
-      status: "OPEN" as const,
-      autoAccept: false,
-      maxSeats: 4,
-      totalFare: 900,
-      createdAt: new Date().toISOString(),
-      members: [
-        { id: "m1", rideId: "mock1", userId: "u3", user: mockUser("u3", "Maya V."), status: "ACTIVE" as const, joinedAt: new Date().toISOString() }
-      ]
-    }
-  ];
+  useEffect(() => {
+    const fetchMyRides = async () => {
+      try {
+        const res = await getMyRides();
+        setRides(res.data.rides || []);
+      } catch (error) {
+        toast.error('Failed to load your rides');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMyRides();
+  }, []);
 
-  const pastRides = [
-    {
-      id: "mock2",
-      creatorId: user?.id || "u1",
-      creator: user || mockUser("u1", "Me"),
-      destination: "Terminal 3 IGI Airport",
-      pickupLocation: "Hostel Block C",
-      date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0],
-      departureTime: new Date(Date.now() - 86400000 * 2).toISOString(),
-      status: "COMPLETED" as const,
-      autoAccept: true,
-      maxSeats: 4,
-      totalFare: 1600,
-      createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-      members: [
-        { id: 'm21', rideId: 'mock2', userId: 'u2', user: mockUser('u2', 'User 2'), status: 'ACTIVE' as const, joinedAt: new Date().toISOString() },
-        { id: 'm22', rideId: 'mock2', userId: 'u3', user: mockUser('u3', 'User 3'), status: 'ACTIVE' as const, joinedAt: new Date().toISOString() },
-        { id: 'm23', rideId: 'mock2', userId: 'u4', user: mockUser('u4', 'User 4'), status: 'ACTIVE' as const, joinedAt: new Date().toISOString() }
-      ]
-    },
-    {
-      id: "mock3",
-      creatorId: "u4",
-      creator: mockUser("u4", "Ishani V."),
-      destination: "Cyber Hub",
-      pickupLocation: "Library Plaza",
-      date: new Date(Date.now() - 86400000 * 5).toISOString().split('T')[0],
-      departureTime: new Date(Date.now() - 86400000 * 5).toISOString(),
-      status: "CANCELLED" as const,
-      autoAccept: false,
-      maxSeats: 3,
-      totalFare: 450,
-      createdAt: new Date(Date.now() - 86400000 * 6).toISOString(),
-      members: [
-        { id: 'm31', rideId: 'mock3', userId: 'u5', user: mockUser('u5', 'User 5'), status: 'ACTIVE' as const, joinedAt: new Date().toISOString() }
-      ]
-    }
-  ];
-
-  const displayRides = activeTab === 'ACTIVE' ? activeRides : pastRides;
+  const hostedRides = rides.filter(r => r.creatorId === user?.id || (r.creator as any)?.id === user?.id);
+  const joinedRides = rides.filter(r => r.creatorId !== user?.id && (r.creator as any)?.id !== user?.id);
 
   return (
-    <div className="flex-1 w-full bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <div className="flex-1 w-full bg-gray-50/50 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         
-        <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-navy tracking-tight mb-2">My Rides</h1>
-          <p className="text-gray-500 max-w-xl">
-            Manage your upcoming trips and review your ride history.
-          </p>
-        </div>
+        <header className="mb-10">
+          <h1 className="text-4xl font-extrabold text-navy tracking-tight mb-2">My Journey</h1>
+          <p className="text-gray-500 font-medium">Manage your active pools and past trips.</p>
+        </header>
 
-        {/* Custom Tab Switcher */}
-        <div className="flex bg-gray-200/60 p-1.5 rounded-2xl w-max mb-8 border border-gray-200">
-          <button 
-            onClick={() => setActiveTab('ACTIVE')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              activeTab === 'ACTIVE' 
-                ? 'bg-white text-navy shadow-sm' 
-                : 'text-gray-500 hover:text-navy hover:bg-gray-200'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            Active Rides
-          </button>
-          <button 
-            onClick={() => setActiveTab('PAST')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              activeTab === 'PAST' 
-                ? 'bg-white text-navy shadow-sm' 
-                : 'text-gray-500 hover:text-navy hover:bg-gray-200'
-            }`}
-          >
-            <CheckCircle className="w-4 h-4" />
-            Past Rides
-          </button>
-        </div>
+        {loading ? (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
+             </div>
+        ) : (
+          <div className="space-y-12">
+            
+            {/* Hosted Section */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-navy flex items-center gap-2">
+                  <Car className="w-5 h-5 text-primary" />
+                  Rides You're Hosting
+                  <span className="ml-2 bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full">{hostedRides.length}</span>
+                </h3>
+                {hostedRides.length === 0 && (
+                   <button onClick={() => navigate('/create-ride')} className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                      <Plus className="w-3 h-3" /> Create a new pool
+                   </button>
+                )}
+              </div>
+              
+              {hostedRides.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {hostedRides.map(ride => (
+                    <RideCard key={ride.id} ride={ride} />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl p-8 text-center border border-dashed border-gray-200">
+                  <p className="text-sm text-gray-400 mb-4">You aren't hosting any rides at the moment.</p>
+                </div>
+              )}
+            </section>
 
-        {/* Ride Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayRides.length === 0 ? (
-            <div className="col-span-full py-20 flex flex-col items-center justify-center text-gray-400 bg-white rounded-3xl border border-gray-100 border-dashed">
-               <p className="text-lg font-medium text-navy mb-2">No {activeTab.toLowerCase()} rides</p>
-               <p className="text-sm">You haven't participated in any rides yet.</p>
-            </div>
-          ) : (
-            displayRides.map(ride => (
-              <RideCard 
-                key={ride.id} 
-                ride={ride} 
-                isCreator={ride.creator?.id === user?.id} 
-              />
-            ))
-          )}
-        </div>
-
+            {/* Joined Section */}
+            <section>
+              <h3 className="text-lg font-bold text-navy flex items-center gap-2 mb-6">
+                <Users className="w-5 h-5 text-navy" />
+                Joined Communities
+                <span className="ml-2 bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full">{joinedRides.length}</span>
+              </h3>
+              
+              {joinedRides.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {joinedRides.map(ride => (
+                    <RideCard key={ride.id} ride={ride} />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl p-8 text-center border border-dashed border-gray-200">
+                  <p className="text-sm text-gray-400 mb-4">You haven't joined any pools yet.</p>
+                  <button onClick={() => navigate('/home')} className="text-xs font-bold text-primary hover:underline">Browse available rides</button>
+                </div>
+              )}
+            </section>
+          </div>
+        )}
       </div>
     </div>
   );

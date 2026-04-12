@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotificationContext } from '../../context/NotificationContext';
 import NotificationDrawer from '../notifications/NotificationDrawer';
 
 const Navbar: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { unreadCount } = useNotificationContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
               <Link to="/" className="text-2xl font-bold text-primary">
-                CabShare
+                CampusRide
               </Link>
               
               {user && (
@@ -59,6 +59,15 @@ const Navbar: React.FC = () => {
                     )}
                   </div>
                 </Link>
+
+                <button 
+                  onClick={logout}
+                  className="p-2 rounded-full hover:bg-danger/10 text-danger transition-colors flex items-center gap-2 font-medium text-sm"
+                  title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="hidden lg:inline">Logout</span>
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-4 text-sm font-medium">

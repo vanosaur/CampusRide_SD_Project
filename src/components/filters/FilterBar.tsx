@@ -1,5 +1,5 @@
-import React from 'react';
-import { Calendar, SlidersHorizontal } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, SlidersHorizontal, Search } from 'lucide-react';
 
 const destinations = [
   "All Rides",
@@ -10,24 +10,37 @@ const destinations = [
 ];
 
 interface FilterBarProps {
-  activeFilter: string;
-  setActiveFilter: (filter: string) => void;
+  onSearch: (filters: { destination?: string; date?: string }) => void;
+  initialFilters?: { destination?: string; date?: string };
 }
 
-const FilterBar: React.FC<FilterBarProps> = ({ activeFilter, setActiveFilter }) => {
+const FilterBar: React.FC<FilterBarProps> = ({ onSearch, initialFilters }) => {
+  const [destination, setDestination] = useState(initialFilters?.destination || 'All Rides');
+  const [date, setDate] = useState(initialFilters?.date || '');
+
+  const handleSearch = () => {
+    onSearch({ 
+      destination: destination === 'All Rides' ? undefined : destination, 
+      date: date || undefined 
+    });
+  };
+
   return (
     <div className="w-full my-6 bg-transparent">
       {/* Scrollable Chips */}
-      <div className="flex items-center justify-between gap-4 w-full">
+      <div className="flex items-center justify-between gap-4 w-full px-2">
         <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2 -mb-2 flex-grow">
           {destinations.map(dest => (
             <button
               key={dest}
-              onClick={() => setActiveFilter(dest)}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeFilter === dest 
-                  ? 'bg-primary text-white shadow-md' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              onClick={() => {
+                setDestination(dest);
+                onSearch({ destination: dest === 'All Rides' ? undefined : dest, date: date || undefined });
+              }}
+              className={`whitespace-nowrap px-6 py-2.5 rounded-2xl text-sm font-bold transition-all ${
+                destination === dest 
+                  ? 'bg-primary text-white shadow-lg shadow-teal-500/20' 
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
               }`}
             >
               {dest}
@@ -35,42 +48,34 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeFilter, setActiveFilter }) 
           ))}
         </div>
         
-        <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-navy hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+        <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-navy hover:bg-gray-100 rounded-2xl transition-colors flex-shrink-0 border border-transparent hover:border-gray-200">
           <SlidersHorizontal className="w-4 h-4" />
-          Filters
+          More
         </button>
       </div>
 
-      {/* Date & Time Picker Row */}
-      <div className="flex flex-col md:flex-row gap-4 mt-6">
-        <div className="flex-none md:w-64">
-          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Departure Date</label>
-          <div className="relative bg-white rounded-xl shadow-sm px-4 py-3 border border-gray-100 flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-primary" />
-            <span className="font-medium text-navy text-sm">Oct 24, 2023</span>
+      {/* Date & Search Row */}
+      <div className="flex flex-col md:flex-row gap-4 mt-8 px-2 pb-2">
+        <div className="flex-none md:w-72">
+          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Departure Date</label>
+          <div className="relative group">
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary group-focus-within:scale-110 transition-transform" />
+            <input 
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full bg-gray-50/50 border border-gray-100 rounded-[1.25rem] pl-12 pr-4 py-4 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-navy font-bold text-sm cursor-pointer"
+            />
           </div>
         </div>
         
-        <div className="flex-grow">
-          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Time Window</label>
-          <div className="bg-white rounded-xl shadow-sm px-6 py-3 border border-gray-100 h-[46px] flex flex-col justify-center">
-             <div className="relative w-full h-1 bg-gray-200 rounded-full">
-               <div className="absolute left-1/4 right-1/4 h-1 bg-primary rounded-full"></div>
-               <div className="absolute left-1/4 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full shadow border-2 border-white"></div>
-               <div className="absolute right-1/4 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full shadow border-2 border-white"></div>
-             </div>
-             <div className="flex justify-between mt-2">
-               <span className="text-[10px] font-semibold text-gray-400">08:00 AM</span>
-               <span className="text-[10px] font-semibold text-gray-400">12:00 PM</span>
-               <span className="text-[10px] font-semibold text-gray-400">06:00 PM</span>
-             </div>
-          </div>
-        </div>
-        
-        <div className="flex-none md:w-48 self-end">
-          <button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2">
-            <Search className="w-4 h-4" />
-            Find Rides
+        <div className="flex-grow flex flex-col justify-end">
+           <button 
+             onClick={handleSearch}
+             className="w-full md:w-max px-12 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-teal-500/20 py-4 rounded-[1.25rem] font-bold text-sm transition-all flex items-center justify-center gap-3 hover:-translate-y-0.5 active:scale-95"
+           >
+            <Search className="w-5 h-5" />
+            Search Rides
           </button>
         </div>
       </div>
@@ -78,7 +83,5 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeFilter, setActiveFilter }) 
   );
 };
 
-// Extracted search icon to be used above without double import
-import { Search } from 'lucide-react';
-
 export default FilterBar;
+

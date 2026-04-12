@@ -84,8 +84,13 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
 
   return (
     <div 
-      onClick={() => currentRide.id && navigate(`/rides/${currentRide.id}`)}
-      className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-pointer group flex flex-col"
+      onClick={() => {
+        const rideId = currentRide.id || (currentRide as any)._id;
+        rideId && navigate(`/rides/${rideId}`);
+      }}
+      className={`bg-white rounded-3xl p-5 shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-pointer group flex flex-col ${
+        isFull || status !== 'OPEN' ? 'grayscale opacity-80 bg-gray-50/50' : ''
+      }`}
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
@@ -128,36 +133,38 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
       {/* Footer / Actions */}
       <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden outline outline-2 outline-white shadow-sm">
-             {creator?.profilePhoto ? (
-                <img src={creator.profilePhoto} alt={creator?.name} className="w-full h-full object-cover" />
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center outline outline-2 outline-white shadow-sm overflow-hidden text-primary">
+             {(creator?.profilePhoto || (currentRide as any).creatorId?.profilePhoto) ? (
+                <img src={creator?.profilePhoto || (currentRide as any).creatorId?.profilePhoto} alt="Host" className="w-full h-full object-cover" />
              ) : (
-                <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Avatar" className="w-full h-full object-cover" />
+                <UserIcon className="w-5 h-5" />
              )}
           </div>
           <div>
-            <p className="text-sm font-bold text-navy">{creator?.name || 'Creator Name'}</p>
-            <p className="text-[10px] text-gray-500 font-medium">4.9 ★ • Engineering</p>
+            <p className="text-sm font-bold text-navy">
+              {creator?.name || (currentRide as any).creatorId?.name || 'Loading...'}
+            </p>
+            <p className="text-[10px] text-gray-500 font-medium">Verified Student</p>
           </div>
         </div>
 
         {!isCreator && (
           <button 
-            disabled={isFull || joining || status !== 'OPEN'}
-            onClick={handleJoin}
-            className={`px-6 py-2.5 rounded-full font-bold text-sm shadow-sm transition-all ${
-              isFull || status !== 'OPEN' 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-primary text-white hover:bg-primary/90 hover:shadow-primary/30 hover:shadow-md'
-            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              const rideId = currentRide.id || (currentRide as any)._id;
+              rideId && navigate(`/rides/${rideId}`);
+            }}
+            className="px-6 py-2.5 rounded-full font-bold text-sm shadow-sm transition-all bg-navy/5 text-navy hover:bg-navy/10 flex items-center gap-2"
           >
-            {joining ? 'Joining...' : isFull ? 'Full' : 'Join'}
+            Details
           </button>
         )}
         
         {isCreator && (
-          <div className="px-4 py-2 bg-navy px-4 py-2 rounded-full text-white text-xs font-bold shadow-md">
-            Your Ride
+          <div className="flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-full text-primary text-xs font-bold border border-teal-100 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            Host Mode
           </div>
         )}
       </div>

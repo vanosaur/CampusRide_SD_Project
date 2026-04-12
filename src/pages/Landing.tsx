@@ -131,14 +131,14 @@ const Landing = () => {
       
       {/* Footer */}
       <footer className="bg-gray-50 py-12 border-t border-gray-100 mt-20 text-center">
-         <h4 className="text-xl font-bold text-primary mb-6">CabShare</h4>
+         <h4 className="text-xl font-bold text-primary mb-6">CampusRide</h4>
          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500 font-medium mb-8">
            <a href="#" className="hover:text-primary transition-colors">Campus Security</a>
            <a href="#" className="hover:text-primary transition-colors">Support</a>
            <a href="#" className="hover:text-primary transition-colors">Ride Safety</a>
            <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
          </div>
-         <p className="text-xs text-gray-400">© 2024 Campus CabShare. Part of the Academic Curatator Network.</p>
+         <p className="text-xs text-gray-400">© 2024 CampusRide. Part of the Academic Curator Network.</p>
       </footer>
     </div>
   );

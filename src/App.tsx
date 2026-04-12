@@ -11,6 +11,7 @@ import Home from './pages/Home'
 import CreateRide from './pages/CreateRide'
 import RideDetail from './pages/RideDetail'
 import MyRides from './pages/MyRides'
+import Profile from './pages/Profile'
 
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Navbar from './components/layout/Navbar'
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/create-ride" element={<CreateRide />} />
                     <Route path="/rides/:id" element={<RideDetail />} />
                     <Route path="/my-rides" element={<MyRides />} />
+                    <Route path="/profile" element={<Profile />} />
                   </Route>
 
                   {/* Fallback */}

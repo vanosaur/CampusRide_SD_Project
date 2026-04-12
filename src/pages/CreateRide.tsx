@@ -62,13 +62,16 @@ const CreateRide = () => {
   const onSubmit = async (data: FormData) => {
     try {
       setLoading(true);
-      // Combine date and time
-      const departureTime = new Date(`${data.date}T${data.time}`).toISOString();
+      // Combine date and time (Assume local time from inputs)
+      const [year, month, day] = data.date.split('-').map(Number);
+      const [hours, minutes] = data.time.split(':').map(Number);
+      const departureTime = new Date(year, month - 1, day, hours, minutes).toISOString();
+      
       const payload = { ...data, departureTime };
       
       const res = await createRide(payload);
       toast.success('Ride created successfully!');
-      const rideId = res.data.id || res.data.ride?.id;
+      const rideId = res.data.ride?._id || res.data.id || (res.data as any)._id;
       navigate(`/rides/${rideId}`);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to create ride');
