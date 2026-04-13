@@ -1,92 +1,97 @@
-# 🚗 CampusRide - Smart Commute Platform
+# 🚗 CampusRide
 
-## 📌 Project Overview
-CampusRide is a high-fidelity, full-stack ride-sharing platform designed specifically for university students. It solves the coordination problem and high cost of individual travel by allowing students to discover, join, and manage shared commutes in real-time.
+**CampusRide** is a high-performance, real-time ride-sharing platform specifically designed for university ecosystems. It empowers students to optimize their commutes by hosting or joining ride pools, splitting fares equitably, and communicating through real-time channels—all within a secure, verified university network.
 
----
+## 🛠️ Tech Stack
 
-## 🏗️ Architecture & Lead Developer Credits
-**Vani Rudra (Lead Architect)**: Auth Service, Ride Logic, SOLID Implementation, Repo & API Architecture.
+### **Frontend**
+- **Framework**: React 19 + Vite 8 (TypeScript)
+- **Styling**: TailwindCSS (Premium UI with Glassmorphism)
+- **Animation**: Framer Motion
+- **Icons**: Lucide React
+- **State/Routing**: React Router 7 + Context API
+- **Real-Time**: Socket.io-client
 
-### **Core Design Patterns (SOLID)**
-- **Singleton Pattern**: Managed via `SocketManager` and `RideService` for consistent state.
-- **Factory Pattern**: The `NotificationFactory` handles dynamic creation of real-time alerts.
-- **Strategy Pattern**: Flexible ride discovery using the `RideFilter` logic.
-- **Decorator Pattern**: Implemented via the `catchAsync` wrapper for clean error handling.
-
----
-
-## ⚡ Tech Stack
-- **Backend**: Node.js, Express, TypeScript (Strict Mode)
-- **Database**: MongoDB + Mongoose ODM
-- **Validation**: Zod (Schema-based request guarding)
-- **Security**: JWT (Stateless Auth), bcrypt (Password hashing)
-- **Real-time**: Socket.io (Bi-directional communication)
+### **Backend**
+- **Runtime**: Node.js
+- **Framework**: Express (MVC Architecture)
+- **Database**: MongoDB + Mongoose (ORM)
+- **Real-Time**: Socket.io (Engine.io)
+- **Authentication**: JWT (JSON Web Tokens)
+- **Communication**: Nodemailer (OTP Verification)
 
 ---
 
-## 🛠️ Global API Reference
+## 🏗️ Technical Architecture & Design Progress
 
-### **Authentication Module**
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Sends 6-digit OTP to university email. |
-| `POST` | `/api/auth/verify-otp` | Validates OTP and registers the user. |
-| `POST` | `/api/auth/login` | Authenticates User & Returns JWT. |
-| `GET` | `/api/auth/me` | Fetches current user profile. |
+### **1. Base Classes & Interfaces**
+We utilize a robust type-system and interface architecture to define our core domain entities:
+- **`User`**: Captures identity, university email verification, and profile metadata.
+- **`Ride`**: The central entity managing route data, fare calculation, and status.
+- **`RideMember`**: A relationship entity managing passenger status (Pending/Active) and occupancy.
 
-### **Ride Service Module**
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/rides` | Creates a new ride (Auto-creates Driver membership). |
-| `GET` | `/api/rides` | Discover rides with `destination` & `date` filters. |
-| `GET` | `/api/rides/:id` | Detailed view of a ride, members, and chat. |
-| `POST` | `/api/rides/:id/join` | Passenger request to join a ride. |
-| `PUT` | `/api/rides/:id/members` | **Host Only**: Accept or Reject a member. |
-| `PUT` | `/api/rides/:id/confirm` | **Host Only**: Finalize ride and block further joins. |
+### **2. Design Patterns**
+We have implemented the **Strategy Pattern** for the Ride Filtering system. This allows the platform to apply multiple, interchangeable filtering algorithms without modifying core discovery logic.
+- **Interface**: `RideFilter`
+- **Concrete Strategies**: `DestinationFilter`, `DateFilter` 
 
----
-
-## 🛡️ Professional Error Architecture
-The platform implements a **Centralized Error Handling Architecture** to ensure the API never crashes and provides consistent feedback:
-- **`AppError` Class**: Distinguishes between Operational (User) errors and System bugs.
-- **`globalErrorHandler`**: A single middleware safety net that catches all unhandled exceptions.
-- **Error Format**:
-```json
-{
-  "status": "fail",
-  "message": "Invalid credentials",
-}
-```
+### **3. SDLC + OOP Concepts Used**
+- **Encapsulation**: Services hide complex database interactions from the entry points.
+- **Abstraction**: Using TypeScript Interfaces to define strict contracts.
+- **Polymorphism**: Interface-based filtering allows for interchangeable search strategies.
+- **Lifecycle**: The project follows an **Agile/Iterative SDLC** methodology, transitioning from prototype to production-hardened system.
 
 ---
 
-## 🚀 Setup & Deployment
+## 🗄️ ER Diagram & Cardinality
+![alt text](image-1.png)
 
-### Backend Setup
-1. `cd backend`
-2. `npm install`
-3. Create `.env` (See Environment Variables below)
-4. `npm run dev`
+**Relationships:**
+- **User (1) ↔️ (N) Ride (Creator)**
+- **User (N) ↔️ (M) Ride (Members)**
+- **Ride (1) ↔️ (N) Message**
 
-### Frontend Setup
-1. `npm install`
-2. `npm run dev`
+---
 
-### Environment Variables
+## 🚀 Setup and Installation
+
+### **1. Setup**
 ```bash
-MONGO_URI=mongodb://localhost:27017/campusride
-JWT_SECRET=your_secure_secret
+git clone https://github.com/yourusername/campusride.git
+cd campusride
+npm install
+cd backend && npm install
+```
+
+### **2. Environment Configuration**
+Create a `.env` file in the `backend/` directory:
+```env
 PORT=5001
-EMAIL_USER=your_university_email
-EMAIL_PASS=your_app_password
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+```
+
+### **3. Running the Project**
+```bash
+# Backend
+cd backend && npm run dev
+
+# Frontend
+npm run dev
 ```
 
 ---
 
-## 👥 Team Members & Modules
-1. **Vani Rudra (TL)** – Team Lead + Backend Architecture (Auth, Ride Service, SOLID)
-2. **Bulbul Agarwalla** – Frontend Development (React Pages, AuthContext)
-3. **Anuradha Raghuwanshi** – Real-Time & Chat (Socket.io, ChatBox)
-4. **Apoorva Choudhary** – Database & API Design (Schema, REST Endpoints)
-5. **Ganga Raghuwanshi** – Testing & Documentation (Test Cases, Flow Diagrams)
+## 👥 Team Members and Contributions
+
+| # | Name | Roll No. | Modules Owned |
+|---|------|----------|---------------|
+| 1 | **Vani Rudra** | 2401010490 | Team Lead + Backend Architecture — Auth, Ride Service, SOLID design, README & Repo setup |
+| 2 | **Bulbul Agarwalla** | 2401010131 | Frontend Development — All React pages, AuthContext, routing, Class Diagram |
+| 3 | **Anuradha Raghuwanshi** | 2401010087 | Real-Time & Chat — Socket.io, ChatBox component, live updates, Use Case Diagram |
+| 4 | **Apoorva Choudhary** | 2401010092 | Database & API Design — Prisma schema, REST endpoints, ER Diagram |
+| 5 | **Ganga Raghuwanshi** | 2401010165 | Testing & Documentation — Test cases, Sequence Diagram, Report writing |
+
+---
+
+**CampusRide** — *Smart Commuting for Smart Campuses.* 🎓🚗
