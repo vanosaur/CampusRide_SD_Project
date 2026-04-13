@@ -44,12 +44,12 @@ We have implemented the **Strategy Pattern** for the Ride Filtering system. This
 ---
 
 ## 🗄️ ER Diagram & Cardinality
-![alt text](image-1.png)
+![ER Diagram](diagrams/ERDiagram.png)
 
 **Relationships:**
-- **User (1) ↔️ (N) Ride (Creator)**
-- **User (N) ↔️ (M) Ride (Members)**
-- **Ride (1) ↔️ (N) Message**
+- **User (1) ↔ (N) Ride (Creator)**
+- **User (N) ↔ (M) Ride (Members)**
+- **Ride (1) ↔ (N) Message**
 
 ---
 
