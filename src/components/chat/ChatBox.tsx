@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, PlusCircle, Settings, Search } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import PinnedMessage from './PinnedMessage';
-import { chatService } from '../../api/ChatService';
+import { chatService } from '../../services/ChatService';
 import { useSocketContext } from '../../context/SocketContext';
 import { Message } from '../../types';
 import { useAuth } from '../../context/AuthContext';
