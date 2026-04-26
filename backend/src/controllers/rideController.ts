@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { RideService } from '../services/RideService';
 import { Ride } from '../models/Ride';
-import { DestinationFilter, DateFilter } from '../patterns/RideFilter';
+import {
+  DestinationFilter,
+  DateFilter,
+  TimeRangeFilter,
+  GenderPreferenceFilter,
+  StatusFilter,
+} from '../patterns/RideFilter';
 import { catchAsync } from '../utils/catchAsync';
 import { AppError } from '../utils/AppError';
 
@@ -13,25 +19,33 @@ export const createRide = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const getRides = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  let ridesQuery = Ride.find({ status: 'OPEN' }).populate('creatorId', 'name profilePhoto');
+  const { destination, date, timeFrom, timeTo, genderPreference, status } = req.query as Record<string, string | undefined>;
+
+  // When a status filter is explicitly requested, honour it; otherwise default to OPEN rides.
+  const statusQuery = status ? status : 'OPEN';
+  let ridesQuery = Ride.find({ status: statusQuery }).populate('creatorId', 'name profilePhoto gender');
   let rides = await ridesQuery.exec();
 
-  const { destination, date } = req.query;
+  // Apply Strategy-pattern filter chain
   if (destination) {
-    const destFilter = new DestinationFilter(destination as string);
-    rides = destFilter.apply(rides as any) as any;
+    rides = new DestinationFilter(destination).apply(rides as any) as any;
   }
   if (date) {
-    const dateFilter = new DateFilter(date as string);
-    rides = dateFilter.apply(rides as any) as any;
+    rides = new DateFilter(date).apply(rides as any) as any;
+  }
+  if (timeFrom || timeTo) {
+    rides = new TimeRangeFilter(timeFrom, timeTo).apply(rides as any) as any;
+  }
+  if (genderPreference) {
+    rides = new GenderPreferenceFilter(genderPreference).apply(rides as any) as any;
   }
 
-  res.status(200).json({ rides });
+  res.status(200).json({ count: rides.length, rides });
 });
 
 export const getMyRides = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const userId = (req as any).user.id;
-  
+
   // Find rides where user is creator OR user is in members array
   const rides = await Ride.find({
     $or: [
@@ -44,7 +58,7 @@ export const getMyRides = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const getRideById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const ride = await Ride.findById(req.params.id).populate('creatorId', 'name profilePhoto');
+  const ride = await Ride.findById(req.params.id).populate('creatorId', 'name profilePhoto gender');
   if (!ride) return next(new AppError('Ride not found', 404));
   res.status(200).json({ ride });
 });
@@ -76,11 +90,11 @@ export const updateMemberStatus = catchAsync(async (req: Request, res: Response,
   }
 
   const member = await RideService.updateMemberStatus(
-    req.params.id as any, 
-    memberUserId as any, 
-    creatorId, 
+    req.params.id as any,
+    memberUserId as any,
+    creatorId,
     status
   );
-  
+
   res.status(200).json({ member, message: `Member ${status.toLowerCase()} successfully` });
 });

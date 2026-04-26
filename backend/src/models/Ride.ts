@@ -8,6 +8,12 @@ export enum RideStatus {
   CANCELLED = 'CANCELLED'
 }
 
+export enum GenderPreference {
+  ANY = 'ANY',
+  MALE = 'MALE',
+  FEMALE = 'FEMALE'
+}
+
 export interface IRide extends Document {
   creatorId: mongoose.Types.ObjectId;
   destination: string;
@@ -18,6 +24,7 @@ export interface IRide extends Document {
   totalFare: number;
   status: RideStatus;
   autoAccept: boolean;
+  genderPreference: GenderPreference;
   createdAt: Date;
 }
 
@@ -31,6 +38,7 @@ const RideSchema: Schema = new Schema({
   totalFare: { type: Number, required: true, min: 0 },
   status: { type: String, enum: Object.values(RideStatus), default: RideStatus.OPEN },
   autoAccept: { type: Boolean, default: false },
+  genderPreference: { type: String, enum: Object.values(GenderPreference), default: GenderPreference.ANY },
   createdAt: { type: Date, default: Date.now }
 }, {
   toJSON: { virtuals: true },

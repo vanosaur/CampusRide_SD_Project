@@ -1,0 +1,133 @@
+// CampusRide – Prisma Schema (MongoDB Provider)
+// This schema mirrors the existing Mongoose models and serves as the
+// authoritative data contract and future migration anchor.
+// The app currently uses Mongoose at runtime; Prisma Client can be
+// adopted incrementally.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+// ─────────────────────────────────────────────
+//  Enums
+// ─────────────────────────────────────────────
+
+enum RideStatus {
+  OPEN
+  FULL
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum MemberStatus {
+  PENDING
+  ACTIVE
+  LEFT
+}
+
+enum NotificationType {
+  SUCCESS
+  WARNING
+  INFO
+  ERROR
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum GenderPreference {
+  ANY
+  MALE
+  FEMALE
+}
+
+// ─────────────────────────────────────────────
+//  Models
+// ─────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  profilePhoto String?
+  gender       Gender?
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  // Relations
+  ridesCreated   Ride[]         @relation("RideCreator")
+  rideMembers    RideMember[]
+  messages       Message[]      @relation("MessageSender")
+  notifications  Notification[]
+}
+
+model Ride {
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId        String           @db.ObjectId
+  destination      String
+  pickupLocation   String
+  date             String           // YYYY-MM-DD
+  departureTime    DateTime
+  maxSeats         Int
+  totalFare        Float
+  status           RideStatus       @default(OPEN)
+  autoAccept       Boolean          @default(false)
+  genderPreference GenderPreference @default(ANY)
+  createdAt        DateTime         @default(now())
+
+  // Relations
+  creator     User         @relation("RideCreator", fields: [creatorId], references: [id])
+  members     RideMember[]
+  messages    Message[]
+  notifications Notification[] @relation("RideNotifications")
+}
+
+model RideMember {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  rideId    String       @db.ObjectId
+  userId    String       @db.ObjectId
+  status    MemberStatus @default(PENDING)
+  joinedAt  DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Relations
+  ride Ride @relation(fields: [rideId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  rideId   String   @db.ObjectId
+  senderId String   @db.ObjectId
+  content  String
+  isPinned Boolean  @default(false)
+  sentAt   DateTime @default(now())
+
+  // Relations
+  ride   Ride @relation(fields: [rideId], references: [id])
+  sender User @relation("MessageSender", fields: [senderId], references: [id])
+}
+
+model Notification {
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String           @db.ObjectId
+  type          NotificationType @default(INFO)
+  message       String
+  isRead        Boolean          @default(false)
+  relatedRideId String?          @db.ObjectId
+  createdAt     DateTime         @default(now())
+
+  // Relations
+  user        User  @relation(fields: [userId], references: [id])
+  relatedRide Ride? @relation("RideNotifications", fields: [relatedRideId], references: [id])
+}
