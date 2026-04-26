@@ -4,7 +4,7 @@ import { Notification } from '../models/Notification';
 import mongoose from 'mongoose';
 
 export class NotificationService {
-  public static async notify(type: 'JOINED' | 'CONFIRMED' | 'CANCELLED' | 'ACCEPTED' | 'REJECTED', payload: any): Promise<void> {
+  public static async notify(type: 'JOINED' | 'CONFIRMED' | 'CANCELLED' | 'ACCEPTED' | 'REJECTED' | 'FULL', payload: any): Promise<void> {
     const notificationObj = NotificationFactory.create(type, payload);
     const dbNotification = await notificationObj.send();
     

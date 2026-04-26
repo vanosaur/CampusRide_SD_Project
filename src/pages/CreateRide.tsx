@@ -54,6 +54,7 @@ const CreateRide = () => {
     departureTime: (formValues.date && formValues.time) ? `${formValues.date}T${formValues.time}:00Z` : new Date().toISOString(),
     maxSeats: formValues.maxSeats || 3,
     totalFare: formValues.totalFare || 0,
+    potentialFare: formValues.totalFare ? Math.ceil(formValues.totalFare / (formValues.maxSeats || 1)) : 0,
     status: "OPEN" as const,
     members: [],
     creator: user || { id: 'mock-id', name: "Current User" }
@@ -134,25 +135,27 @@ const CreateRide = () => {
               <div className="grid grid-cols-2 gap-6 pt-2">
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Date</label>
-                  <div className="relative">
-                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <div className="relative group cursor-pointer">
+                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none group-hover:text-primary transition-colors" />
                     <input 
                       {...register('date')}
                       type="date"
                       min={today}
-                      className="w-full bg-gray-100/80 border border-transparent rounded-xl px-4 py-3.5 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-navy"
+                      onClick={(e) => (e.target as any).showPicker?.()}
+                      className="w-full bg-gray-100/80 border border-transparent rounded-xl px-4 py-3.5 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-navy cursor-pointer"
                     />
                   </div>
                   {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Time</label>
-                  <div className="relative">
-                    <Clock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <div className="relative group cursor-pointer">
+                    <Clock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none group-hover:text-primary transition-colors" />
                     <input 
                       {...register('time')}
                       type="time"
-                      className="w-full bg-gray-100/80 border border-transparent rounded-xl px-4 py-3.5 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-navy"
+                      onClick={(e) => (e.target as any).showPicker?.()}
+                      className="w-full bg-gray-100/80 border border-transparent rounded-xl px-4 py-3.5 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-navy cursor-pointer"
                     />
                   </div>
                   {errors.time && <p className="text-red-500 text-xs mt-1">{errors.time.message}</p>}
@@ -178,6 +181,11 @@ const CreateRide = () => {
                       className="w-full pl-10 bg-gray-100/80 border border-transparent rounded-xl pr-4 py-3.5 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-navy font-bold"
                     />
                   </div>
+                  {formValues.totalFare > 0 && (
+                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-2 flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> Potential split: ₹{Math.ceil(formValues.totalFare / (formValues.maxSeats || 1))} per person when full
+                    </p>
+                  )}
                   {errors.totalFare && <p className="text-red-500 text-xs mt-1">{errors.totalFare.message}</p>}
                 </div>
               </div>

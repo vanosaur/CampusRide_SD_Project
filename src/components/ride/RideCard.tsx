@@ -15,6 +15,10 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
   const [joining, setJoining] = useState(false);
 
   useEffect(() => {
+    setCurrentRide(ride);
+  }, [ride]);
+
+  useEffect(() => {
     if (!socket || !currentRide?.id) return;
     
     // Listen for real-time updates for THIS ride specifically in the feed
@@ -122,10 +126,14 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
           })}
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Fare</p>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">
+            {(currentRide as any).potentialFare ? 'Split Fare' : 'Fare'}
+          </p>
           <div className="flex items-baseline gap-0.5">
             <span className="text-sm font-bold text-navy">₹</span>
-            <span className="text-2xl font-extrabold text-navy">{farePerPerson}</span>
+            <span className="text-2xl font-extrabold text-navy">
+              {(currentRide as any).potentialFare || farePerPerson}
+            </span>
           </div>
         </div>
       </div>

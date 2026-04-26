@@ -87,8 +87,26 @@ export class RideRequestNotification extends BaseNotification {
   }
 }
 
+export class RideFullNotification extends BaseNotification {
+  private rideName: string;
+
+  constructor(userId: mongoose.Types.ObjectId, rideName: string, relatedRideId?: mongoose.Types.ObjectId) {
+    super(userId, relatedRideId);
+    this.rideName = rideName;
+  }
+
+  public async send(): Promise<INotification> {
+    return Notification.create({
+      userId: this.userId,
+      type: NotificationType.WARNING,
+      message: `The ride to ${this.rideName} is now FULL!`,
+      relatedRideId: this.relatedRideId
+    });
+  }
+}
+
 export class NotificationFactory {
-  public static create(type: 'JOINED' | 'CONFIRMED' | 'CANCELLED' | 'ACCEPTED' | 'REJECTED', payload: any): BaseNotification {
+  public static create(type: 'JOINED' | 'CONFIRMED' | 'CANCELLED' | 'ACCEPTED' | 'REJECTED' | 'FULL', payload: any): BaseNotification {
     if (type === 'JOINED') {
       return new RideJoinedNotification(payload.userId, payload.rideName, payload.relatedRideId);
     } else if (type === 'CONFIRMED') {
@@ -97,6 +115,8 @@ export class NotificationFactory {
       return new RideCancelledNotification(payload.userId, payload.reason, payload.relatedRideId);
     } else if (type === 'ACCEPTED' || type === 'REJECTED') {
       return new RideRequestNotification(payload.userId, payload.rideName, type, payload.relatedRideId);
+    } else if (type === 'FULL') {
+      return new RideFullNotification(payload.userId, payload.rideName, payload.relatedRideId);
     }
     throw new Error('Unknown notification type');
   }

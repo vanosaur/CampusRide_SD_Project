@@ -36,6 +36,20 @@ export class RideService {
         rideName: ride.destination, 
         relatedRideId: ride._id 
       });
+
+      // Check if ride is full
+      const activeMembersCount = await RideMember.countDocuments({ rideId, status: MemberStatus.ACTIVE });
+      if (activeMembersCount >= ride.maxSeats) {
+        ride.status = RideStatus.FULL;
+        await ride.save();
+        
+        // Notify creator
+        await NotificationService.notify('FULL', {
+          userId: ride.creatorId,
+          rideName: ride.destination,
+          relatedRideId: ride._id
+        });
+      }
     } else {
       // Notify creator to accept
       await NotificationService.notify('JOINED', { 
@@ -67,6 +81,33 @@ export class RideService {
       rideName: ride.destination,
       relatedRideId: ride._id
     });
+
+    // Check if ride is full
+    if (status === MemberStatus.ACTIVE) {
+      const activeMembersCount = await RideMember.countDocuments({ rideId, status: MemberStatus.ACTIVE });
+      if (activeMembersCount >= ride.maxSeats) {
+        ride.status = RideStatus.FULL;
+        await ride.save();
+
+        // Notify creator and members
+        await NotificationService.notify('FULL', {
+          userId: ride.creatorId,
+          rideName: ride.destination,
+          relatedRideId: ride._id
+        });
+
+        const activeMembers = await RideMember.find({ rideId, status: MemberStatus.ACTIVE });
+        for (const m of activeMembers) {
+           if (m.userId.toString() !== ride.creatorId.toString()) {
+              await NotificationService.notify('FULL', {
+                userId: m.userId,
+                rideName: ride.destination,
+                relatedRideId: ride._id
+              });
+           }
+        }
+      }
+    }
 
     return member;
   }
