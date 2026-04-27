@@ -8,11 +8,10 @@ import { useRides } from '../hooks/useRides';
 
 const Home = () => {
   const navigate = useNavigate();
-  const [showSoonOnly, setShowSoonOnly] = useState(false);
   
   const { rides, loading, setFilters, filters } = useRides();
 
-  const handleSearch = (newFilters: { destination?: string; date?: string }) => {
+  const handleSearch = (newFilters: { destination?: string; date?: string; timeFrom?: string }) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
@@ -32,18 +31,8 @@ const Home = () => {
       return new Date(a.departureTime).getTime() - new Date(b.departureTime).getTime();
     });
 
-    // Smart Filter: Departing Soon (Next 4 hours)
-    if (showSoonOnly) {
-      const now = new Date().getTime();
-      const fourHoursLater = now + 4 * 60 * 60 * 1000;
-      filtered = filtered.filter(r => {
-        const depTime = new Date(r.departureTime).getTime();
-        return depTime >= now && depTime <= fourHoursLater;
-      });
-    }
-
     return filtered;
-  }, [rides, showSoonOnly]);
+  }, [rides]);
 
   return (
     <div className="flex-1 w-full bg-[#FAFAFB] pb-16 min-h-screen">
@@ -66,17 +55,6 @@ const Home = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-             <button 
-                onClick={() => setShowSoonOnly(!showSoonOnly)}
-                className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all border ${
-                  showSoonOnly 
-                    ? 'bg-navy text-white border-navy shadow-lg shadow-navy/20' 
-                    : 'bg-white text-gray-600 border-gray-100 hover:border-gray-200 shadow-sm'
-                }`}
-             >
-                <Clock className="w-4 h-4" />
-                {showSoonOnly ? 'Showing Soon' : 'Sort by Time'}
-             </button>
 
              <button 
                 onClick={() => navigate('/create-ride')}
@@ -101,11 +79,6 @@ const Home = () => {
                 {processedRides.length}
               </span>
             </h2>
-            {showSoonOnly && (
-               <button onClick={() => setShowSoonOnly(false)} className="text-xs font-bold text-primary hover:underline">
-                  Clear Smart Filters
-               </button>
-            )}
         </div>
 
         {/* Ride Grid */}

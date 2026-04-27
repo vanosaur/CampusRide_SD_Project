@@ -5,6 +5,11 @@ export const formatRideTime = (dateString?: string): string => {
   return format(new Date(dateString), 'h:mm a');
 };
 
+export const formatRideDate = (dateString?: string): string => {
+  if (!dateString) return '';
+  return format(new Date(dateString), 'MMM d, yyyy');
+};
+
 export const formatRelativeTime = (dateString?: string): string => {
   if (!dateString) return '';
   const date = new Date(dateString);

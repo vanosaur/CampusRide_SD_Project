@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, SlidersHorizontal, Search } from 'lucide-react';
+import { Calendar, SlidersHorizontal, Search, Clock } from 'lucide-react';
 
 const destinations = [
   "All Rides",
@@ -10,18 +10,20 @@ const destinations = [
 ];
 
 interface FilterBarProps {
-  onSearch: (filters: { destination?: string; date?: string }) => void;
-  initialFilters?: { destination?: string; date?: string };
+  onSearch: (filters: { destination?: string; date?: string; timeFrom?: string }) => void;
+  initialFilters?: { destination?: string; date?: string; timeFrom?: string };
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ onSearch, initialFilters }) => {
   const [destination, setDestination] = useState(initialFilters?.destination || 'All Rides');
   const [date, setDate] = useState(initialFilters?.date || '');
+  const [time, setTime] = useState(initialFilters?.timeFrom || '');
 
   const handleSearch = () => {
     onSearch({ 
       destination: destination === 'All Rides' ? undefined : destination, 
-      date: date || undefined 
+      date: date || undefined,
+      timeFrom: time || undefined
     });
   };
 
@@ -64,6 +66,19 @@ const FilterBar: React.FC<FilterBarProps> = ({ onSearch, initialFilters }) => {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              className="w-full bg-gray-50/50 border border-gray-100 rounded-[1.25rem] pl-12 pr-4 py-4 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-navy font-bold text-sm cursor-pointer"
+            />
+          </div>
+        </div>
+
+        <div className="flex-none md:w-48">
+          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Time (From)</label>
+          <div className="relative group">
+            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary group-focus-within:scale-110 transition-transform" />
+            <input 
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
               className="w-full bg-gray-50/50 border border-gray-100 rounded-[1.25rem] pl-12 pr-4 py-4 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-navy font-bold text-sm cursor-pointer"
             />
           </div>

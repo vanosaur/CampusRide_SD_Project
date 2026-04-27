@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { MapPin, User as UserIcon } from 'lucide-react';
 import { joinRide } from '../../api/rides';
 import { useSocketContext } from '../../context/SocketContext';
-import { formatRideTime } from '../../utils/formatTime';
+import { formatRideTime, formatRideDate } from '../../utils/formatTime';
 import { calculateFareSplit } from '../../utils/fareCalc';
 import { Ride, User, RideMember } from '../../types';
 
@@ -106,8 +106,8 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
           </p>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 py-1 bg-gray-50 rounded-full mb-1">
-            {formatRideTime(departureTime) || 'Time'}
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 py-1 bg-gray-50 rounded-full mb-1 whitespace-nowrap">
+            {departureTime ? `${formatRideDate(departureTime as unknown as string)} • ` : ''}{formatRideTime(departureTime as unknown as string) || 'Time'}
           </span>
           {status && <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${getStatusColor(status)}`}>{status}</span>}
         </div>
