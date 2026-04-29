@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CarFront, Plus, Search, Sparkles, Clock } from 'lucide-react';
+import { CarFront, Plus, Search, Sparkles, Clock, Calendar } from 'lucide-react';
 import FilterBar from '../components/filters/FilterBar';
 import RideCard from '../components/ride/RideCard';
 import SkeletonCard from '../components/ui/SkeletonCard';
@@ -8,6 +8,7 @@ import { useRides } from '../hooks/useRides';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   
   const { rides, loading, setFilters, filters } = useRides();
 
@@ -23,16 +24,13 @@ const Home = () => {
 
     // Status & Time Sorting
     filtered.sort((a, b) => {
-      // 1. Prioritize OPEN rides
-      if (a.status === 'OPEN' && b.status !== 'OPEN') return -1;
-      if (a.status !== 'OPEN' && b.status === 'OPEN') return 1;
-      
-      // 2. Then sort by Departure Time (Earliest first)
-      return new Date(a.departureTime).getTime() - new Date(b.departureTime).getTime();
+      // Sort strictly by Departure Time
+      const diff = new Date(a.departureTime).getTime() - new Date(b.departureTime).getTime();
+      return sortOrder === 'asc' ? diff : -diff;
     });
 
     return filtered;
-  }, [rides]);
+  }, [rides, sortOrder]);
 
   return (
     <div className="flex-1 w-full bg-[#FAFAFB] pb-16 min-h-screen">
@@ -55,6 +53,17 @@ const Home = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+             <button 
+                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all border ${
+                  sortOrder === 'desc'
+                    ? 'bg-navy text-white border-navy shadow-lg shadow-navy/20' 
+                    : 'bg-white text-gray-600 border-gray-100 hover:border-gray-200 shadow-sm'
+                }`}
+             >
+                <Calendar className="w-4 h-4" />
+                {sortOrder === 'asc' ? 'Earliest Date & Time' : 'Latest Date & Time'}
+             </button>
 
              <button 
                 onClick={() => navigate('/create-ride')}
@@ -79,6 +88,11 @@ const Home = () => {
                 {processedRides.length}
               </span>
             </h2>
+            {sortOrder === 'desc' && (
+               <button onClick={() => setSortOrder('asc')} className="text-xs font-bold text-primary hover:underline">
+                  Clear Sort
+               </button>
+            )}
         </div>
 
         {/* Ride Grid */}

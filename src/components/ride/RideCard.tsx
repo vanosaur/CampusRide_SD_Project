@@ -106,8 +106,10 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
           </p>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 py-1 bg-gray-50 rounded-full mb-1 whitespace-nowrap">
-            {departureTime ? `${formatRideDate(departureTime as unknown as string)} • ` : ''}{formatRideTime(departureTime as unknown as string) || 'Time'}
+          <span className="text-[10px] font-bold text-navy uppercase tracking-widest px-3 py-1 bg-gray-50 rounded-full mb-1 border border-gray-100 flex items-center gap-1.5 shadow-sm">
+            <span className="text-primary">{departureTime ? formatRideDate(departureTime as unknown as string) : 'Date'}</span>
+            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+            <span className="text-gray-500">{formatRideTime(departureTime as unknown as string) || 'Time'}</span>
           </span>
           {status && <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${getStatusColor(status)}`}>{status}</span>}
         </div>

@@ -45,7 +45,7 @@ const SeatMap: React.FC<SeatMapProps> = ({ maxSeats, members = [], creator }) =>
               )}
             </div>
             <p className="font-bold text-navy text-sm text-center line-clamp-1">{userData.name}</p>
-            {isHost && <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Driver</p>}
+            {isHost && <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Host</p>}
           </div>
         )
       })}
