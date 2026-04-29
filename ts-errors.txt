@@ -1,0 +1,19 @@
+src/api/messages.ts(19,28): error TS6133: 'rideId' is declared but its value is never read.
+src/components/chat/ChatBox.tsx(2,38): error TS6133: 'Search' is declared but its value is never read.
+src/components/chat/ChatBox.tsx(18,10): error TS6133: 'onlineUsers' is declared but its value is never read.
+src/components/chat/ChatBox.tsx(20,35): error TS2503: Cannot find namespace 'NodeJS'.
+src/components/ride/RideCard.tsx(15,10): error TS6133: 'joining' is declared but its value is never read.
+src/components/ride/RideCard.tsx(62,9): error TS6133: 'handleJoin' is declared but its value is never read.
+src/pages/CreateRide.tsx(75,37): error TS2339: Property '_id' does not exist on type 'Ride'.
+src/pages/Home.tsx(3,44): error TS6133: 'Clock' is declared but its value is never read.
+src/pages/MyRides.tsx(4,10): error TS6133: 'Clock' is declared but its value is never read.
+src/pages/MyRides.tsx(4,29): error TS6133: 'Search' is declared but its value is never read.
+src/pages/RideDetail.tsx(32,38): error TS2339: Property 'destination' does not exist on type 'Ride | { ride?: Ride | undefined; id?: string | undefined; message?: string | undefined; member?: any; }'.
+  Property 'destination' does not exist on type '{ ride?: Ride | undefined; id?: string | undefined; message?: string | undefined; member?: any; }'.
+src/pages/RideDetail.tsx(32,62): error TS2339: Property '_id' does not exist on type 'Ride | { ride?: Ride | undefined; id?: string | undefined; message?: string | undefined; member?: any; }'.
+  Property '_id' does not exist on type 'Ride'.
+src/pages/RideDetail.tsx(33,23): error TS2345: Argument of type 'Ride | { ride?: Ride | undefined; id?: string | undefined; message?: string | undefined; member?: any; }' is not assignable to parameter of type 'SetStateAction<Ride | null>'.
+  Type '{ ride?: Ride | undefined; id?: string | undefined; message?: string | undefined; member?: any; }' is not assignable to type 'SetStateAction<Ride | null>'.
+    Type '{ ride?: Ride | undefined; id?: string | undefined; message?: string | undefined; member?: any; }' is missing the following properties from type 'Ride': creatorId, creator, destination, pickupLocation, and 8 more.
+src/pages/RideDetail.tsx(191,106): error TS18048: 'member.user' is possibly 'undefined'.
+src/pages/RideDetail.tsx(198,106): error TS18048: 'member.user' is possibly 'undefined'.

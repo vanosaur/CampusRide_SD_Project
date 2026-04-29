@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+
 import { MapPin, User as UserIcon } from 'lucide-react';
-import { joinRide } from '../../api/rides';
+
 import { useSocketContext } from '../../context/SocketContext';
 import { formatRideTime, formatRideDate } from '../../utils/formatTime';
 import { calculateFareSplit } from '../../utils/fareCalc';
@@ -12,7 +12,7 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
   const navigate = useNavigate();
   const { socket } = useSocketContext();
   const [currentRide, setCurrentRide] = useState<Partial<Ride>>(ride);
-  const [joining, setJoining] = useState(false);
+
 
   useEffect(() => {
     setCurrentRide(ride);
@@ -59,21 +59,7 @@ const RideCard: React.FC<{ ride: Partial<Ride>; isCreator?: boolean }> = ({ ride
   const farePerPerson = calculateFareSplit(totalFare || 0, occupiedCount);
   const isFull = occupiedCount >= (maxSeats || 4);
 
-  const handleJoin = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!currentRide.id) return; // Preview mode check
-    
-    try {
-      setJoining(true);
-      await joinRide(currentRide.id);
-      toast.success('Successfully requested to join ride!');
-      navigate(`/rides/${currentRide.id}`);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Could not join ride');
-    } finally {
-      setJoining(false);
-    }
-  };
+
 
   const getStatusColor = (s: string) => {
     switch (s) {

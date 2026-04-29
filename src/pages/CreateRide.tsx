@@ -72,7 +72,7 @@ const CreateRide = () => {
       
       const res = await createRide(payload);
       toast.success('Ride created successfully!');
-      const rideId = res.data.ride?._id || res.data.id || (res.data as any)._id;
+      const rideId = (res.data.ride as any)?._id || res.data.id || (res.data as any)._id;
       navigate(`/rides/${rideId}`);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to create ride');

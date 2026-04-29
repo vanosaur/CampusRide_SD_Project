@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, PlusCircle, Settings, Search } from 'lucide-react';
+import { Send, PlusCircle, Settings } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import PinnedMessage from './PinnedMessage';
 import { chatService } from '../../services/ChatService';
@@ -15,9 +15,9 @@ const ChatBox: React.FC<{ rideId: string }> = ({ rideId }) => {
   const [input, setInput] = useState('');
   const [view, setView] = useState<'RIDE' | 'GLOBAL'>('RIDE');
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [_onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Mock pinned message as per UI
   const pinnedMessage = "Please meet at the North Gate entrance by 4:20 PM";

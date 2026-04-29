@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Clock, Car, Users, Search, Plus } from 'lucide-react';
+import { Car, Users, Plus } from 'lucide-react';
 import { getMyRides } from '../api/rides';
 import { useAuth } from '../context/AuthContext';
 import RideCard from '../components/ride/RideCard';

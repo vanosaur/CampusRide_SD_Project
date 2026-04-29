@@ -16,6 +16,6 @@ export const sendMessage = (rideId: string, data: { content: string }): Promise<
   return api.post(`/rides/${rideId}/messages`, data);
 };
 
-export const pinMessage = (rideId: string, messageId: string): Promise<MessagesResponse> => {
+export const pinMessage = (_rideId: string, messageId: string): Promise<MessagesResponse> => {
   return api.put(`/rides/messages/${messageId}/pin`);
 };

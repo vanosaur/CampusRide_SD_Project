@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CarFront, Plus, Search, Sparkles, Clock, Calendar } from 'lucide-react';
+import { CarFront, Plus, Search, Sparkles, Calendar } from 'lucide-react';
 import FilterBar from '../components/filters/FilterBar';
 import RideCard from '../components/ride/RideCard';
 import SkeletonCard from '../components/ui/SkeletonCard';

@@ -29,8 +29,8 @@ const RideDetail = () => {
            // Support both { data: { ride } } and { data: ride }
            const rideData = res.data.ride || res.data;
            // VALIDATION: Only set ride if it actually has a destination or ID
-           if (rideData && (rideData.destination || rideData._id || rideData.id)) {
-              setRide(rideData);
+           if (rideData && ((rideData as any).destination || (rideData as any)._id || (rideData as any).id)) {
+              setRide(rideData as Ride);
               setError(null);
            } else {
               setRide(null);
@@ -188,14 +188,14 @@ const RideDetail = () => {
                          <span className="text-sm font-semibold">{member.user?.name || 'Applicant'}</span>
                          <div className="flex gap-2">
                             <button 
-                               onClick={() => handleAction('accept', rideApi.updateMemberStatus(ride.id, member.user.id || (member as any).userId, 'ACTIVE'))}
+                               onClick={() => handleAction('accept', rideApi.updateMemberStatus(ride.id, member.user?.id || (member as any).userId, 'ACTIVE'))}
                                className="p-1 hover:bg-green-100 rounded-full text-green-600 transition" 
                                title="Accept"
                              >
                                 <CheckCircle className="w-5 h-5" />
                              </button>
                              <button 
-                               onClick={() => handleAction('reject', rideApi.updateMemberStatus(ride.id, member.user.id || (member as any).userId, 'REJECTED'))}
+                               onClick={() => handleAction('reject', rideApi.updateMemberStatus(ride.id, member.user?.id || (member as any).userId, 'REJECTED'))}
                                className="p-1 hover:bg-red-100 rounded-full text-red-600 transition" 
                                title="Reject"
                              >
