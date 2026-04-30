@@ -39,7 +39,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    window.location.href = '/login';
+    // Use replace to prevent back-button issues
+    window.location.replace('/login');
   };
 
   return (

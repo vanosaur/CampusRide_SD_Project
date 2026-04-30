@@ -10,63 +10,78 @@ const otpStore = new Map<string, { otp: string; userData: any; expires: number }
 
 export const register = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
+  const normalizedEmail = email.toLowerCase().trim();
 
-  if (!email.endsWith('@nst.rishihood.edu.in') && !email.endsWith('.edu')) {
-    return next(new AppError('Please use your university email address', 400));
+  // Strict university email check restored as requested
+  if (!normalizedEmail.endsWith('@nst.rishihood.edu.in') && !normalizedEmail.endsWith('.edu')) {
+    return next(new AppError('Please use your university email address (@nst.rishihood.edu.in)', 400));
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
-    return next(new AppError('User already exists', 400));
+    return next(new AppError('User with this email already exists', 400));
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore.set(email, {
+  otpStore.set(normalizedEmail, {
     otp,
-    userData: { name, email, password },
+    userData: { name, email: normalizedEmail, password },
     expires: Date.now() + 10 * 60 * 1000 // 10 mins
   });
 
-  // FIRE AND FORGET: Don't await the email sending so the API responds instantly.
-  // The OTP is already logged to the console in the utility function for debugging.
-  sendEmailOTP(email, otp).catch(err => {
-    console.error(`[BACKGROUND EMAIL ERROR] Failed to send to ${email}:`, err.message);
+  // FIRE AND FORGET: Background email send
+  sendEmailOTP(normalizedEmail, otp).catch(err => {
+    console.error(`[BACKGROUND EMAIL ERROR] Failed to send to ${normalizedEmail}:`, err.message);
   });
 
   res.status(200).json({ 
-    message: 'OTP generated and being sent to your email',
-    note: 'In development, check the Render logs if the email takes too long.'
+    message: 'Security code sent to your university email',
+    devNote: 'Check your spam folder or Render logs if it takes more than 30 seconds.'
   });
 });
 
 export const verifyOTP = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { email, otp } = req.body;
-  const stored = otpStore.get(email);
+  const normalizedEmail = email.toLowerCase().trim();
+  const stored = otpStore.get(normalizedEmail);
 
   if (!stored || stored.otp !== otp || Date.now() > stored.expires) {
-    return next(new AppError('Invalid or expired OTP', 400));
+    return next(new AppError('Invalid or expired security code', 400));
   }
 
   const { name, password } = stored.userData;
   const passwordHash = await AuthService.hashPassword(password);
-  const newUser = await User.create({ name, email, passwordHash, isVerified: true });
   
-  otpStore.delete(email);
+  const newUser = await User.create({ 
+    name, 
+    email: normalizedEmail, 
+    passwordHash, 
+    isVerified: true 
+  });
+  
+  otpStore.delete(normalizedEmail);
 
   const token = AuthService.generateToken(newUser);
-  res.status(201).json({ user: newUser, token });
+  res.status(201).json({ user: newUser, token, message: 'Registration successful!' });
 });
 
 export const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email }).select('+passwordHash');
+  const normalizedEmail = email.toLowerCase().trim();
 
-  if (!user || !(await AuthService.comparePassword(password, user.passwordHash))) {
-    return next(new AppError('Invalid credentials', 401));
+  const user = await User.findOne({ email: normalizedEmail }).select('+passwordHash');
+
+  if (!user) {
+    return next(new AppError('No account found with this email address', 401));
+  }
+
+  const isPasswordCorrect = await AuthService.comparePassword(password, user.passwordHash);
+  if (!isPasswordCorrect) {
+    return next(new AppError('Incorrect password. Please try again.', 401));
   }
 
   const token = AuthService.generateToken(user);
-  res.status(200).json({ user, token });
+  res.status(200).json({ user, token, message: 'Login successful!' });
 });
 
 export const getMe = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
