@@ -27,8 +27,16 @@ export const register = catchAsync(async (req: Request, res: Response, next: Nex
     expires: Date.now() + 10 * 60 * 1000 // 10 mins
   });
 
-  await sendEmailOTP(email, otp);
-  res.status(200).json({ message: 'OTP sent to your email' });
+  // FIRE AND FORGET: Don't await the email sending so the API responds instantly.
+  // The OTP is already logged to the console in the utility function for debugging.
+  sendEmailOTP(email, otp).catch(err => {
+    console.error(`[BACKGROUND EMAIL ERROR] Failed to send to ${email}:`, err.message);
+  });
+
+  res.status(200).json({ 
+    message: 'OTP generated and being sent to your email',
+    note: 'In development, check the Render logs if the email takes too long.'
+  });
 });
 
 export const verifyOTP = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
